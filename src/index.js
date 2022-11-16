@@ -53,6 +53,8 @@ function Square(props) {
             history: [{squares: Array(9).fill(null)}],
             xIsNext: true,
             stepNumber: 0,
+            squarePosition: Array(2),
+            gameStarted: false,
         }
     }
 
@@ -67,6 +69,7 @@ function Square(props) {
         if(calculateWinner(squares) || squares[i]) return;
 
         squares[i] = this.state.xIsNext ? 'X' : 'O';
+        const squarePosition = getSquarePosition(i);
         
         this.setState({
             history: history.concat([{ //using concat because it does not mutate the original array
@@ -74,7 +77,12 @@ function Square(props) {
             }]),
             xIsNext: !this.state.xIsNext,
             stepNumber: history.length,
+            squarePosition: squarePosition,
         });
+
+        if(!this.state.gameStarted) this.setState({
+          gameStarted: true,
+        })
     }
 
     jumpTo(step){
@@ -91,6 +99,8 @@ function Square(props) {
         const history = this.state.history;
         const current = history[this.state.stepNumber];
         const winner = calculateWinner(current.squares);
+        const position = this.state.squarePosition;
+
 
         const moves = history.map((step, move) => {
             const desc = move ? "Go to move #" + move : "Go to game start";
@@ -109,7 +119,10 @@ function Square(props) {
         else{
             status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
         }
-
+        let lastClicked;
+        if(this.state.gameStarted){
+          lastClicked = `last clicked square: ${position[0]},${position[1]}`
+        }
 
       return (
         <div className="game">
@@ -119,9 +132,10 @@ function Square(props) {
                 onClick = { (i) => this.handleClick(i)}
             />
           </div>
-          <div className="game-info">
+            <div className="game-info">
             <div>{ status }</div>   
             <ol>{ moves }</ol>
+            <p>{lastClicked}</p>
           </div>
         </div>
       );
@@ -151,4 +165,16 @@ function Square(props) {
       }
     }
     return null;
+  }
+
+  function getSquarePosition(index){
+    if(index === 0) return [1,1]
+    else if(index === 1) return [2,1]
+    else if(index === 2) return [3,1]
+    else if(index === 3) return [1,2]
+    else if(index === 4) return [2,2]
+    else if(index === 5) return [3,2]
+    else if(index === 6) return [1,3]
+    else if(index === 7) return [2,3]
+    else if(index === 8) return [3,3]
   }
